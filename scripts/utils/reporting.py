@@ -83,7 +83,12 @@ def extract_detection(file: ParseFileName, detection: Detection):
     else:
         os.makedirs(new_dir, exist_ok=True)
         extract_safe(file.file_name, new_file, detection.start, detection.stop)
-        spectrogram(new_file, detection.common_name, new_file.replace(os.path.expanduser('~/'), ''), conf['RAW_SPECTROGRAM'])
+        # Local change 2026-09-25: per-detection spectrogram PNGs disabled.
+        # The web frontend is not used, and these PNGs used ~3x the disk of
+        # the audio (3.24 GB vs 1.00 GB). Toggle via SPECTROGRAM_ENABLED in
+        # birdnet.conf; absent or non-zero keeps upstream behaviour.
+        if conf.get('SPECTROGRAM_ENABLED', '1') != '0':
+            spectrogram(new_file, detection.common_name, new_file.replace(os.path.expanduser('~/'), ''), conf['RAW_SPECTROGRAM'])
     return new_file
 
 

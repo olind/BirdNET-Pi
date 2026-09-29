@@ -19,7 +19,16 @@ class Detection:
         self.species = scientific_name
         self.scientific_name = scientific_name
         self.common_name = common_name
-        self.common_name_safe = self.common_name.replace("'", "").replace(" ", "_")
+        # Local change 2026-09-25: also sanitise "/". 109 labels in the Swedish
+        # (DATABASE_LANG=sv) label set contain a slash, e.g. "Kricka/Amerikansk
+        # kricka". Left in, it acts as a path separator: sox cannot write the
+        # extraction, extract_detection() raises, and birdnet_analysis.py aborts
+        # before write_to_db() -- losing the detection entirely, with no row and
+        # no file. See CLAUDE.md "OPEN BUG".
+        self.common_name_safe = (self.common_name
+                                 .replace("'", "")
+                                 .replace(" ", "_")
+                                 .replace("/", "-"))
         self.file_name_extr = None
 
     def __str__(self):
